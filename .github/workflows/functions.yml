@@ -1,0 +1,32 @@
+name: Deploy Azure Functions
+
+on:
+  push:
+    paths:
+      # any change inside the Functions project triggers a deploy
+      - 'paraplanner-functions/**'
+      # changes to this workflow itself
+      - '.github/workflows/functions.yml'
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1) checkout repo
+    - uses: actions/checkout@v4
+
+    # 2) log in to Azure using service-principal JSON
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # 3) Publish the Functions project
+    - name: Deploy Functions
+      uses: Azure/functions-action@v1
+      with:
+        app-name: paraplanner-functions          # exact name of Function App
+        package: paraplanner-functions           # folder to zip & deploy
+        enable-oryx-build: true                  # installs packages from requirements.txt
