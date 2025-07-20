@@ -1,0 +1,25 @@
+name: Deploy FastAPI
+
+on:
+  push:
+    paths:
+      - 'api/**'
+      - '.github/workflows/api.yml'
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r api/requirements.txt
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: paraplanner-api
+          package: api
